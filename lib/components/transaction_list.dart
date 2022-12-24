@@ -34,46 +34,24 @@ class TransactionList extends StatelessWidget {
                 itemCount: _transactions.length,
                 itemBuilder: (context, index) {
                   final tr = _transactions[index];
-
                   return Card(
-                      child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Theme.of(context).primaryColor, width: 2),
-                        ),
-                        child: Text(
-                          'R\$ ${tr.value.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 18,
-                          ),
-                        ),
+                    elevation: 5,
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+                    child: ListTile(
+                      subtitle: Text(DateFormat("d MMM y").format(tr.date)),
+                      title: Text(
+                        tr.title,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            tr.title,
-                            // style: TextStyle(
-                            //   fontSize: 16,
-                            //   fontWeight: FontWeight.bold,
-                            // ),
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                          Text(
-                            DateFormat('d MMM y').format(tr.date),
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                        ],
+                      leading: CircleAvatar(
+                        radius: 30,
+                        child: Padding(
+                            padding: const EdgeInsets.all(6),
+                            child: FittedBox(child: Text("R\$${tr.value}"))),
                       ),
-                    ],
-                  ));
+                    ),
+                  );
                 }));
   }
 }

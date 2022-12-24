@@ -37,7 +37,7 @@ class Chart extends StatelessWidget {
         'day': DateFormat.E().format(weekDay)[0],
         'value': totalSum,
       };
-    });
+    }).reversed.toList();
   }
 
   @override
@@ -50,14 +50,10 @@ class Chart extends StatelessWidget {
           children: groupedTransactions
               .map((e) => Column(
                     children: [
-                      Flexible(
-                        fit: FlexFit.loose,
-                        child: ChartBar(
-                          label: e["day"].toString(),
-                          value: e['value'] as double,
-                          percentage:
-                              ((e['value'] as double) / _weekTotalValue),
-                        ),
+                      ChartBar(
+                        label: e["day"].toString(),
+                        value: e['value'] as double,
+                        percentage: ((e['value'] as double) / _weekTotalValue),
                       ),
                     ],
                   ))
