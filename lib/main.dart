@@ -22,7 +22,7 @@ class ExpensesApp extends StatelessWidget {
             primarySwatch: Colors.pink,
             fontFamily: 'Quicksand',
             textTheme: const TextTheme(
-                headline6: TextStyle(
+                titleLarge: TextStyle(
                     fontSize: 18,
                     fontFamily: 'Quicksand',
                     fontWeight: FontWeight.w700)),
@@ -43,36 +43,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<Transaction> _transactions = [
-    Transaction(
-        't1',
-        'Novo Tenis de Corrida',
-        310.76,
-        DateTime.now().subtract(
-          const Duration(days: 1),
-        )),
-    Transaction(
-        't2',
-        'Conta de luz',
-        100.70,
-        DateTime.now().subtract(
-          const Duration(days: 2),
-        )),
-    Transaction(
-        't3',
-        'Netflix',
-        50,
-        DateTime.now().subtract(
-          const Duration(days: 3),
-        )),
-    Transaction(
-        't3',
-        'Netflix 2',
-        90,
-        DateTime.now().subtract(
-          const Duration(days: 4),
-        )),
-  ];
+  final List<Transaction> _transactions = [];
 
   List<Transaction> get _recentTransactions {
     return _transactions
@@ -82,12 +53,18 @@ class _HomePageState extends State<HomePage> {
         .toList();
   }
 
-  _addTransaction(String title, double value) {
+  void _removeTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((tr) => tr.id == id);
+    });
+  }
+
+  void _addTransaction(String title, double value, DateTime date) {
     final newTransaction = Transaction(
       Random().nextDouble().toString(),
       title,
       value,
-      DateTime.now(),
+      date,
     );
 
     setState(() {
@@ -121,13 +98,11 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(Icons.add))
           ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Chart(_recentTransactions),
-              TransactionList(_transactions),
-            ],
-          ),
+        body: Column(
+          children: [
+            Chart(_recentTransactions),
+            Expanded(child: TransactionList(_transactions, _removeTransaction)),
+          ],
         ));
   }
 }
