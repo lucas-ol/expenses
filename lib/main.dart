@@ -16,6 +16,7 @@ class ExpensesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MaterialApp(
         home: const HomePage(),
         theme: ThemeData(
@@ -44,7 +45,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List<Transaction> _transactions = [];
-
+  bool showChart = false;
   List<Transaction> get _recentTransactions {
     return _transactions
         .where((tr) => tr.date.isAfter(DateTime.now().subtract(
@@ -75,33 +76,61 @@ class _HomePageState extends State<HomePage> {
 
   _openTransactionFormModal(BuildContext context) {
     showModalBottomSheet(
+        isScrollControlled: true,
         context: context,
         builder: (_) {
-          return TransactionForm(_addTransaction);
+          return Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: TransactionForm(_addTransaction));
         });
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLandscap =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    final appBar = AppBar(
+      title: const Text(
+        "Despesas Pessoais",
+        // style: TextStyle(fontSize: 10 * MediaQuery.of(context).textScaleFactor),
+      ),
+      actions: [
+        if (isLandscap)
+          IconButton(
+            onPressed: () => setState(() {
+              showChart = !showChart;
+            }),
+            icon: Icon(showChart ? Icons.list : Icons.show_chart),
+          ),
+        IconButton(
+          onPressed: () => _openTransactionFormModal(context),
+          icon: const Icon(Icons.add),
+        )
+      ],
+    );
+    final avalibeHeight = MediaQuery.of(context).size.height -
+        appBar.preferredSize.height -
+        MediaQuery.of(context).padding.top;
+
     return Scaffold(
         floatingActionButton: FloatingActionButton(
             onPressed: () => _openTransactionFormModal(context),
             child: const Icon(Icons.add)),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        appBar: AppBar(
-          title: const Text(
-            "Despesas Pessoais",
-          ),
-          actions: [
-            IconButton(
-                onPressed: () => _openTransactionFormModal(context),
-                icon: const Icon(Icons.add))
-          ],
-        ),
+        appBar: appBar,
         body: Column(
           children: [
-            Chart(_recentTransactions),
-            Expanded(child: TransactionList(_transactions, _removeTransaction)),
+            if (showChart || !isLandscap)
+              SizedBox(
+                height: avalibeHeight * (isLandscap ? 0.7 : .3),
+                child: Chart(_recentTransactions),
+              ),
+            if (!showChart || !isLandscap)
+              SizedBox(
+                height: avalibeHeight * .7,
+                child: TransactionList(_transactions, _removeTransaction),
+              ),
           ],
         ));
   }
