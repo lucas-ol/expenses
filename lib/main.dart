@@ -88,8 +88,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isLandscap =
-        MediaQuery.of(context).orientation == Orientation.landscape;
+    final mediaQuery = MediaQuery.of(context);
+    final isLandscap = mediaQuery.orientation == Orientation.landscape;
     final appBar = AppBar(
       title: const Text(
         "Despesas Pessoais",
@@ -109,9 +109,9 @@ class _HomePageState extends State<HomePage> {
         )
       ],
     );
-    final avalibeHeight = MediaQuery.of(context).size.height -
+    final avalibeHeight = mediaQuery.size.height -
         appBar.preferredSize.height -
-        MediaQuery.of(context).padding.top;
+        mediaQuery.padding.top;
 
     return Scaffold(
         floatingActionButton: FloatingActionButton(
@@ -123,12 +123,12 @@ class _HomePageState extends State<HomePage> {
           children: [
             if (showChart || !isLandscap)
               SizedBox(
-                height: avalibeHeight * (isLandscap ? 0.7 : .3),
+                height: avalibeHeight * (isLandscap ? 1 : .3),
                 child: Chart(_recentTransactions),
               ),
             if (!showChart || !isLandscap)
               SizedBox(
-                height: avalibeHeight * .7,
+                height: avalibeHeight * (isLandscap ? 1 : .7),
                 child: TransactionList(_transactions, _removeTransaction),
               ),
           ],
