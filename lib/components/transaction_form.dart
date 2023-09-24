@@ -1,5 +1,8 @@
+import 'package:expenses/components/adaptative_button.dart';
+import 'package:expenses/components/adptative_date_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+
+import 'adaptative_text_field.dart';
 
 class TransactionForm extends StatefulWidget {
   final void Function(String title, double value, DateTime date) onSubmit;
@@ -26,20 +29,6 @@ class _TransactionFormState extends State<TransactionForm> {
     widget.onSubmit(title, value, selectedDate);
   }
 
-  Future<void> _showDatePicker() async {
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2019),
-      lastDate: DateTime.now(),
-    );
-    setState(() {
-      if (pickedDate != null) {
-        selectedDate = pickedDate;
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -49,32 +38,26 @@ class _TransactionFormState extends State<TransactionForm> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            AdaptativeTextField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Titulo'),
+              label: 'Titulo',
             ),
-            TextField(
+            AdaptativeTextField(
               controller: _valueController,
               onSubmitted: (_) => _submitForm(),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'Valor R\$'),
+              label: 'Valor R\$',
             ),
-            Row(
-              children: [
-                Text(DateFormat("dd/MM/y").format(selectedDate)),
-                TextButton(
-                  onPressed: _showDatePicker,
-                  child: const Text(
-                    "Selecionar Data",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
+            AdaptativeDatePicker(
+              selectedDate: selectedDate,
+              onDateChange: (date) => setState(
+                () => selectedDate = date,
+              ),
             ),
             Container(
               alignment: Alignment.topRight,
-              child: ElevatedButton(
+              child: AdaptativeButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
                 onPressed: _submitForm,
                 child: const Text(
