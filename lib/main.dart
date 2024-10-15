@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:expenses/components/chart.dart';
 import 'package:expenses/components/transaction_form.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'components/transaction_list.dart';
@@ -86,52 +88,82 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
+  Widget _getIconButton(
+      {required IconData icon, required Function() onPressed}) {
+    return Platform.isIOS
+        ? GestureDetector(
+            onTap: onPressed,
+            child: Icon(icon),
+          )
+        : IconButton(
+            onPressed: onPressed,
+            icon: Icon(icon),
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isLandscap = mediaQuery.orientation == Orientation.landscape;
-    final appBar = AppBar(
+    final actions = [
+      if (isLandscap)
+        _getIconButton(
+          onPressed: () => setState(() {
+            showChart = !showChart;
+          }),
+          icon: showChart ? Icons.list : Icons.show_chart,
+        ),
+      _getIconButton(
+        onPressed: () => _openTransactionFormModal(context),
+        icon: Platform.isIOS ? CupertinoIcons.add : Icons.add,
+      )
+    ];
+
+    final PreferredSizeWidget appBar = AppBar(
       title: const Text(
         "Despesas Pessoais",
-        // style: TextStyle(fontSize: 10 * MediaQuery.of(context).textScaleFactor),
       ),
-      actions: [
-        if (isLandscap)
-          IconButton(
-            onPressed: () => setState(() {
-              showChart = !showChart;
-            }),
-            icon: Icon(showChart ? Icons.list : Icons.show_chart),
-          ),
-        IconButton(
-          onPressed: () => _openTransactionFormModal(context),
-          icon: const Icon(Icons.add),
-        )
-      ],
+      actions: actions,
     );
     final avalibeHeight = mediaQuery.size.height -
         appBar.preferredSize.height -
         mediaQuery.padding.top;
+    final bodyPage = SafeArea(
+      child: Column(
+        children: [
+          if (showChart || !isLandscap)
+            SizedBox(
+              height: avalibeHeight * (isLandscap ? 1 : .3),
+              child: Chart(_recentTransactions),
+            ),
+          if (!showChart || !isLandscap)
+            SizedBox(
+              height: avalibeHeight * (isLandscap ? 1 : .7),
+              child: TransactionList(_transactions, _removeTransaction),
+            ),
+        ],
+      ),
+    );
 
-    return Scaffold(
-        floatingActionButton: FloatingActionButton(
-            onPressed: () => _openTransactionFormModal(context),
-            child: const Icon(Icons.add)),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        appBar: appBar,
-        body: Column(
-          children: [
-            if (showChart || !isLandscap)
-              SizedBox(
-                height: avalibeHeight * (isLandscap ? 1 : .3),
-                child: Chart(_recentTransactions),
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+              middle: const Text("Despesas Pessoais"),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: actions,
               ),
-            if (!showChart || !isLandscap)
-              SizedBox(
-                height: avalibeHeight * (isLandscap ? 1 : .7),
-                child: TransactionList(_transactions, _removeTransaction),
-              ),
-          ],
-        ));
+            ),
+            child: bodyPage,
+          )
+        : Scaffold(
+            floatingActionButton: FloatingActionButton(
+                onPressed: () => _openTransactionFormModal(context),
+                child: const Icon(Icons.add)),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            appBar: appBar,
+            body: bodyPage,
+          );
   }
 }
